@@ -4,6 +4,30 @@
 /.idea/workspace.xml
 /.idea/libraries
 .DS_Store
-/build
 /captures
 .externalNativeBuild
+
+
+# added
+# built application files
+*.apk
+*.ap_
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# Intellij project files
+*.iml
+*.ipr
+*.iws
+.idea/
+
+#Gradle
+.gradletasknamecache
+.gradle/
+build/
+bin/
