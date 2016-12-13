@@ -5,11 +5,11 @@ import android.os.AsyncTask;
 /**
  * Created by Łukasz on 05.12.2016.
  */
-public class ConncetionTask extends AsyncTask<String,String,Client> {
+public class ConncetionTask extends AsyncTask<String,String,TCPClient> {
 
 
     @Override
-    protected Client doInBackground(String... strings) {
+    protected TCPClient doInBackground(String... strings) {
         return null;
     }
 }
