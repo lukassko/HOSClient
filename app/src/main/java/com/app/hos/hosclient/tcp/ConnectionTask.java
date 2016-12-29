@@ -1,4 +1,4 @@
-package hos.app.com.hosclient.tcp;
+package com.app.hos.hosclient.tcp;
 
 import android.os.AsyncTask;
 

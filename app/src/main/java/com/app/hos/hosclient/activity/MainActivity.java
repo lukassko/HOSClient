@@ -1,12 +1,13 @@
-package hos.app.com.hosclient;
+package com.app.hos.hosclient.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import hos.app.com.hosclient.tcp.ConnectionTask;
-import hos.app.com.hosclient.tcp.TcpClient;
+import com.app.hos.hosclient.tcp.ConnectionTask;
+import com.app.hos.hosclient.tcp.TcpClient;
+import hos.app.com.hosclient.R;
 
 import java.io.IOException;
 

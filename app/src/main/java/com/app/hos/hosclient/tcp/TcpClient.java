@@ -1,4 +1,6 @@
-package hos.app.com.hosclient.tcp;
+package com.app.hos.hosclient.tcp;
+
+import com.app.hos.share.command.Command;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -29,6 +31,7 @@ public class TcpClient {
     public void sendMessage(String message) throws IOException {
         if (objOutput != null) {
             objOutput.writeObject(new String(message));
+            System.out.println("new message sended: " + message);
             objOutput.flush();
         }
     }
@@ -50,13 +53,14 @@ public class TcpClient {
 
             objOutput = new ObjectOutputStream(socket.getOutputStream());
             System.out.println("objOutput created");
-            //objOutput.writeObject(new String("SIEMA"));
+            Command cmd = new Command("1","Android");
+            cmd.setCommandType("HELLO");
+            cmd.setResult("EMPTY");
+            objOutput.writeObject(cmd);
             objOutput.flush();
             System.out.println("Message sended to server");
             objInput = new ObjectInputStream(socket.getInputStream());
             System.out.println("objInput created");
-
-            //bufferIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             while(runClient) {
                 serverMessage = objInput.readObject().toString();
