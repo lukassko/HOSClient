@@ -1,10 +1,7 @@
 package com.app.hos.hosclient.tcp;
 
-/**
- * Created by Łukasz on 23.12.2016.
- */
+import com.app.hos.share.command.builder.Command;
+
 public interface TcpListener {
-
-    public void onMessageReceived(String message);
-
+    public void onMessageReceived(Command command);
 }

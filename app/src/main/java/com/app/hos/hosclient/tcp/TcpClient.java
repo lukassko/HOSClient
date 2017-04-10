@@ -1,23 +1,22 @@
 package com.app.hos.hosclient.tcp;
 
-import com.app.hos.share.command.Command;
+import com.app.hos.share.command.CommandBuilder;
+import com.app.hos.share.command.HelloAbstractCommandBuilder;
+import com.app.hos.share.command.StatusAbstractCommandBuilder;
+import com.app.hos.share.command.builder.Command;
+import com.app.hos.share.command.result.DeviceStatus;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
-/**
- * Created by Łukasz on 05.12.2016.
- */
 public class TcpClient {
 
-    private String serverMessage;
     private final String SERVER_IP = "10.0.2.2";
     private final int SERVER_PORT = 14020;
     private boolean runClient = true;
-
-    //private PrintWriter bufferOut;
-    //private BufferedReader bufferIn;
+    private Socket socket; // TEST
+    private CommandBuilder commandBuilder = new CommandBuilder();
 
     private ObjectInputStream objInput;
     private ObjectOutputStream objOutput;
@@ -28,12 +27,15 @@ public class TcpClient {
         this.tcpListener = tcpListener;
     }
 
-    public void sendMessage(String message) throws IOException {
+    public void sendMessage(Command command) throws IOException {
         if (objOutput != null) {
-            objOutput.writeObject(new String(message));
-            System.out.println("new message sended: " + message);
+            System.out.println("SENDING command "+ command.getCommandType());
+            objOutput.writeObject(command);
             objOutput.flush();
+            System.out.println("NEW COMMAND SENT");
+           // objOutput.reset();
         }
+
     }
 
     public void stopClient() {
@@ -43,44 +45,59 @@ public class TcpClient {
     public void run() {
         Socket socket = null;
 
+        commandBuilder.setCommandBuilder(new StatusAbstractCommandBuilder());
+        commandBuilder.createCommand();
 
         try {
             InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
             System.out.println("CREATEING SOCKET");
             socket = new Socket(serverAddr, SERVER_PORT);
-            System.out.println("AFTER CREATEING SOCKET");
-
-
+            this.socket = socket;
             objOutput = new ObjectOutputStream(socket.getOutputStream());
-            System.out.println("objOutput created");
-            Command cmd = new Command("1","Android");
-            cmd.setCommandType("HELLO");
-            cmd.setResult("EMPTY");
-            objOutput.writeObject(cmd);
-            objOutput.flush();
-            System.out.println("Message sended to server");
+            Command cmd = commandBuilder.getCommand();
+            sendMessage(cmd);
             objInput = new ObjectInputStream(socket.getInputStream());
             System.out.println("objInput created");
-
-            while(runClient) {
-                serverMessage = objInput.readObject().toString();
-                if (serverMessage != null)
-                    tcpListener.onMessageReceived(serverMessage);
-                    System.out.println("SERVER MSG " + serverMessage);
-                serverMessage = null;
-            }
-        } catch (Exception e) {
-            System.out.println("Cannot connect to server");
-            e.printStackTrace();
-        } finally {
-            if (socket != null)
+            Command command = null;
+            while (runClient) {
                 try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            System.out.println("Socket close");
-        }
+                    command = (Command) objInput.readObject();
+                } catch (ClassNotFoundException e) {
+                    System.out.println("TEST1");
+                    System.out.println(e.toString());
+                } catch (InvalidClassException e) {
+                    System.out.println("TEST2");
+                    System.out.println(e.toString());
+                } catch (Exception e) {
+                    System.out.println("TEST3");
+                    System.out.println(e.toString());
 
+                }
+                if (command != null) {
+                        System.out.println("TEST0");
+                        if (command != null) {
+                            System.out.println("command received");
+                            System.out.println(command.getCommandType());
+                           //sendMessage(cmd);
+                            //tcpListener.onMessageReceived(command);
+                        } else {
+                            System.out.println("command is null");
+                        }
+
+                }
+                command = null;
+            }
+            } catch(Exception e){
+                System.out.println("Cannot connect to server");
+                e.printStackTrace();
+            } finally{
+                if (socket != null)
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                System.out.println("Socket close");
+            }
     }
 }

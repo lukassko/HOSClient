@@ -1,11 +1,13 @@
 package com.app.hos.hosclient.tcp;
 
 import android.os.AsyncTask;
+import com.app.hos.share.command.builder.Command;
 
 /**
  * Created by Łukasz on 05.12.2016.
  */
-public class ConnectionTask extends AsyncTask<String,String,TcpClient> {
+public class ConnectionTask extends AsyncTask<Command,Command,TcpClient> {
+
     private static ConnectionTask instance = null;
     private TcpClient tcpClient = null;
 
@@ -13,6 +15,14 @@ public class ConnectionTask extends AsyncTask<String,String,TcpClient> {
         return this.tcpClient;
     }
 
+    protected ConnectionTask () {
+        tcpClient = new TcpClient(new TcpListener() {
+            @Override
+            public void onMessageReceived(Command command) {
+                publishProgress(command);
+            }
+        });
+    }
     public static ConnectionTask getInstance() {
         if(instance == null) {
             instance = new ConnectionTask();
@@ -21,14 +31,7 @@ public class ConnectionTask extends AsyncTask<String,String,TcpClient> {
     }
 
     @Override
-    protected TcpClient doInBackground(String... strings) {
-        tcpClient = new TcpClient(new TcpListener() {
-
-            @Override
-            public void onMessageReceived(String message) {
-                publishProgress(message);
-            }
-        });
+    protected TcpClient doInBackground(Command... params) {
 
         tcpClient.run();
 
@@ -36,10 +39,10 @@ public class ConnectionTask extends AsyncTask<String,String,TcpClient> {
     }
 
     @Override
-    protected void onProgressUpdate(String... values) {
-        super.onProgressUpdate(values);
-        String receivedValue = values[0];
-        System.out.println("receivedValue: " + receivedValue);
+    protected void onProgressUpdate(Command... command) {
+        Command cmd = command[0];
+        super.onProgressUpdate(cmd);
+        System.out.println("RECEIVED COMMAND: " + cmd.getCommandType());
     }
 
 }

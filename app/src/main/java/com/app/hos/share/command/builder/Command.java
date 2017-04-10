@@ -1,23 +1,20 @@
-package com.app.hos.share.command;
+package com.app.hos.share.command.builder;
+
+import com.app.hos.share.command.result.Result;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Command implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    private final String clientId;
-    private final String clientName;
+    private String clientName;
     private String commandType;
-    private String result;
+    private List<Result> result;
 
-    public Command(String clientId, String clientName) {
-        this.clientId = clientId;
+    public void setClientName (String clientName) {
         this.clientName = clientName;
-    }
-
-    public String getClientId() {
-        return clientId;
     }
 
     public String getClientName() {
@@ -32,10 +29,10 @@ public class Command implements Serializable{
         this.commandType = commandType;
     }
 
-    public String getResult() {
+    public List<Result> getResult() {
         return result;
     }
-    public void setResult(String result) {
+    public void setResult(List<Result> result) {
         this.result = result;
     }
 }

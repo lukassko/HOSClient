@@ -7,13 +7,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import com.app.hos.hosclient.tcp.ConnectionTask;
 import com.app.hos.hosclient.tcp.TcpClient;
+import com.app.hos.share.command.CommandBuilder;
+import com.app.hos.share.command.HelloAbstractCommandBuilder;
+import com.app.hos.share.command.StatusAbstractCommandBuilder;
+import com.app.hos.share.command.builder.AbstractCommandBuilder;
+import com.app.hos.share.command.builder.Command;
 import hos.app.com.hosclient.R;
 
 import java.io.IOException;
 
 public class MainActivity extends Activity {
 
+    // USE DESIGN ATTERN TO CRETAE/USE DIFFERENT COMMAND BUILDER (FACOTORY OR STRATEGY)
+    private CommandBuilder commandBuilder = new CommandBuilder();
+    private AbstractCommandBuilder statusAbstractCommandBuilder = new StatusAbstractCommandBuilder();
+
     private TcpClient tcpClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,20 +35,29 @@ public class MainActivity extends Activity {
         ConnectionTask.getInstance().execute();
         this.tcpClient = ConnectionTask.getInstance().getTcpClient();
 
+        commandBuilder.setCommandBuilder(new HelloAbstractCommandBuilder());
+
         send.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 String message = editText.getText().toString();
-
-                //sends the message to the server
-                if (tcpClient != null) {
-                    try {
-                        tcpClient.sendMessage(message);
-                    } catch (IOException e) {
-
-                    }
-
+                System.out.println("BUTTON CLICKED");
+                commandBuilder.setCommandBuilder(new HelloAbstractCommandBuilder());
+                commandBuilder.createCommand();
+                Command cmd = commandBuilder.getCommand();
+            if (tcpClient != null) {
+                try {
+                    tcpClient.sendMessage(cmd);
+                } catch (IOException e) {
+                    System.out.println("Command cannot be sent");
+                    System.out.println(e);
                 }
+
+            } else {
+                System.out.println("EMPTY TCP");
+            }
+
+
                 editText.setText("");
             }
         });
