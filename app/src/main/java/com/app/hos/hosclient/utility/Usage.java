@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -26,7 +27,7 @@ public class Usage {
         double cpuResult;
         try {
             reader = new BufferedReader(new FileReader("/proc/stat"));
-            String[] sa = reader.readLine().split("[ ]+",8);
+            String[] sa = reader.readLine().split("[ ]+");
             long user =         Long.parseLong(sa[1]);
             long nice =         Long.parseLong(sa[2]);
             long system =       Long.parseLong(sa[3]);
@@ -37,10 +38,16 @@ public class Usage {
             long total = user + nice + system + idle + iowait + irq + softirq;
             double cpu = (idle * 100.0) / total;
             cpuResult = 100 - cpu;
-            reader.close();
         } catch (Exception e) {
-            System.out.println(e.toString());
             cpuResult = -1;
+        } finally {
+            if(reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
         }
         return cpuResult;
     }
@@ -54,6 +61,7 @@ public class Usage {
             reader = new BufferedReader(new FileReader("/proc/meminfo"));
             line = reader.readLine();
             while (line != null) {
+                System.out.println(line);
                 if (line.startsWith("MemTotal:"))
                     memTotal = Integer.parseInt(line.split("[ ]+", 3)[1]);
                 if (line.startsWith("MemFree:")) {
@@ -66,6 +74,14 @@ public class Usage {
             reader.close();
         } catch (Exception e) {
             ramResult = -1;
+        } finally {
+            if(reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
         }
         return ramResult;
     }

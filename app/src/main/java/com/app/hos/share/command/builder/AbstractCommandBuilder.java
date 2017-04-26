@@ -1,5 +1,8 @@
 package com.app.hos.share.command.builder;
 
+import com.app.hos.hosclient.utility.Utility;
+import com.app.hos.hosclient.utility.exceptions.NullFieldException;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -11,16 +14,15 @@ public abstract class AbstractCommandBuilder {
         return this.command;
     }
 
-    public void createCommand (String clientId, String clientName) {
-        String serverName;
+    public void createCommand() {
+        String androidId;
         try {
-            InetAddress localMachine = java.net.InetAddress.getLocalHost();
-            serverName = localMachine.getHostName();
-        } catch (UnknownHostException e) {
-            serverName = "Unknown";
+            androidId = Utility.getAndroidId();
+        } catch (NullFieldException e) {
+            androidId = "Unknown";
         }
         this.command = new Command();
-        command.setClientName(serverName);
+        command.setSerialId(androidId);
     }
 
     public abstract void setCommandType ();

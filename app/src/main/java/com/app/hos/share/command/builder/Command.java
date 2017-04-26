@@ -5,20 +5,21 @@ import com.app.hos.share.command.result.Result;
 import java.io.Serializable;
 import java.util.List;
 
+
+// GENERIC TYPE -> public class Command<T extends Serializable> implements Serializable {...}
 public class Command implements Serializable{
 
-    private static final long serialVersionUID = 1L;
-
-    private String clientName;
+    private static final long serialVersionUID = 2L;
+    private String serialId;
     private String commandType;
-    private List<Result> result;
+    private Result result;
 
-    public void setClientName (String clientName) {
-        this.clientName = clientName;
+    public void setSerialId (String serialId) {
+        this.serialId = serialId;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getSerialId() {
+        return serialId;
     }
 
     public String getCommandType() {
@@ -29,10 +30,10 @@ public class Command implements Serializable{
         this.commandType = commandType;
     }
 
-    public List<Result> getResult() {
+    public Result getResult() {
         return result;
     }
-    public void setResult(List<Result> result) {
+    public void setResult(Result result) {
         this.result = result;
     }
 }

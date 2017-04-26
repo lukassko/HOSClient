@@ -1,36 +1,46 @@
 package com.app.hos.share.command.result;
 
+import org.joda.time.DateTime;
+
 import java.io.Serializable;
+
 
 public class DeviceStatus implements Result,Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
-    private UsageType type;
-    private double usage;
+    private DateTime time;
+    private double ramUsage;
+    private double cpuUsage;
 
-    public enum UsageType {
-        CPU,RAM,
+    public DeviceStatus( double ramUsage, double cpuUsage) {
+        this.time = new DateTime();
+        this.ramUsage = ramUsage;
+        this.cpuUsage = cpuUsage;
     }
 
-    public DeviceStatus(UsageType type, double usage) {
-        this.type = type;
-        this.usage = usage;
+    public DateTime getTime() {
+        return time;
     }
 
-    public UsageType getType() {
-        return type;
+    public void setTime(DateTime time) {
+        this.time = time;
     }
 
-    public void setType(UsageType type) {
-        this.type = type;
+    public double getRamUsage() {
+        return ramUsage;
     }
 
-    public double getUsage() {
-        return usage;
+    public void setRamUsage(double ramUsage) {
+        this.ramUsage = ramUsage;
     }
 
-    public void setUsage(double usage) {
-        this.usage = usage;
+    public double getCpuUsage() {
+        return cpuUsage;
     }
+
+    public void setCpuUsage(double cpuUsage) {
+        this.cpuUsage = cpuUsage;
+    }
+
 }

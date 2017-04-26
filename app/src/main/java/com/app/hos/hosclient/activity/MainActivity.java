@@ -5,11 +5,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import com.app.hos.hosclient.tcp.ConnectionTask;
+import com.app.hos.hosclient.tcp.ConnectionThread;
 import com.app.hos.hosclient.tcp.TcpClient;
+import com.app.hos.hosclient.tcp.TcpListener;
+import com.app.hos.hosclient.utility.Utility;
 import com.app.hos.share.command.CommandBuilder;
-import com.app.hos.share.command.HelloAbstractCommandBuilder;
-import com.app.hos.share.command.StatusAbstractCommandBuilder;
+import com.app.hos.share.command.HelloCommandBuilder;
+import com.app.hos.share.command.StatusCommandBuilder;
 import com.app.hos.share.command.builder.AbstractCommandBuilder;
 import com.app.hos.share.command.builder.Command;
 import hos.app.com.hosclient.R;
@@ -20,9 +22,7 @@ public class MainActivity extends Activity {
 
     // USE DESIGN ATTERN TO CRETAE/USE DIFFERENT COMMAND BUILDER (FACOTORY OR STRATEGY)
     private CommandBuilder commandBuilder = new CommandBuilder();
-    private AbstractCommandBuilder statusAbstractCommandBuilder = new StatusAbstractCommandBuilder();
-
-    private TcpClient tcpClient;
+    private AbstractCommandBuilder statusAbstractCommandBuilder = new StatusCommandBuilder();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,34 +31,32 @@ public class MainActivity extends Activity {
 
         final EditText editText = (EditText) findViewById(R.id.edit_text);
         Button send = (Button)findViewById(R.id.send_button);
+        Button close = (Button)findViewById(R.id.close_button);
 
-        ConnectionTask.getInstance().execute();
-        this.tcpClient = ConnectionTask.getInstance().getTcpClient();
+        Utility.setApplicationContext(getApplicationContext());
 
-        commandBuilder.setCommandBuilder(new HelloAbstractCommandBuilder());
+        final ConnectionThread connectionThread = new ConnectionThread(new TcpListener() {
+            @Override
+            public void onMessageReceived(Command command) {
+            }
+        });
+
+        (new Thread(connectionThread)).start();
+
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                connectionThread.stopTcpConnection();
+            }
+        });
 
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = editText.getText().toString();
-                System.out.println("BUTTON CLICKED");
-                commandBuilder.setCommandBuilder(new HelloAbstractCommandBuilder());
-                commandBuilder.createCommand();
-                Command cmd = commandBuilder.getCommand();
-            if (tcpClient != null) {
-                try {
-                    tcpClient.sendMessage(cmd);
-                } catch (IOException e) {
-                    System.out.println("Command cannot be sent");
-                    System.out.println(e);
-                }
-
-            } else {
-                System.out.println("EMPTY TCP");
-            }
-
-
-                editText.setText("");
+            commandBuilder.setCommandBuilder(new StatusCommandBuilder());
+            commandBuilder.createCommand();
+            Command cmd = commandBuilder.getCommand();
+            connectionThread.sendCommand(cmd);
             }
         });
     }
