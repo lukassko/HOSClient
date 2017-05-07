@@ -7,7 +7,7 @@ import com.app.hos.share.command.builder.Command;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import com.app.hos.hosclient.tcp.ConnectionThread.SocketCreated;
+import com.app.hos.hosclient.tcp.ConnectionThread.SocketEvents;
 
 public class TcpClient {
 
@@ -37,7 +37,7 @@ public class TcpClient {
         runClient = false;
     }
 
-    public void run(SocketCreated callback) {
+    public void run(SocketEvents socketEvent) {
         Socket socket = null;
         commandBuilder.setCommandBuilder(new HelloCommandBuilder());
         commandBuilder.createCommand();
@@ -46,7 +46,7 @@ public class TcpClient {
             this.socket = new Socket(serverAddr, SERVER_PORT);
             Command cmd = commandBuilder.getCommand();
             sendMessage(cmd);
-            callback.onSocketCreated();
+            socketEvent.onSocketCreated();
             while (runClient) {
                 ObjectInputStream objInput = new ObjectInputStream(this.socket.getInputStream());
                 Command command = null;
@@ -72,14 +72,9 @@ public class TcpClient {
             System.out.println("Cannot connect to server");
             e.printStackTrace();
         } finally{
+             socketEvent.onSocketClose();
              if (socket != null)
-                 try {
-                     objOutput.close();
-                     objInput.close();
-                     socket.close();
-                 } catch (IOException e) {
-                        e.printStackTrace();
-                 }
+                 closeSocket();
              System.out.println("Socket close");
         }
     }
@@ -93,10 +88,6 @@ public class TcpClient {
         } catch (IOException e) {
             System.out.println("Ecpetion during close");
             e.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("Ecpetion during close 2");
-            e.printStackTrace();
         }
-
     }
 }

@@ -11,8 +11,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ConnectionThread implements Runnable {
 
-    public interface SocketCreated {
+    public interface SocketEvents {
+
         public void onSocketCreated();
+
+        public void onSocketClose();
     }
 
     private TcpClient tcpClient = null;
@@ -30,11 +33,17 @@ public class ConnectionThread implements Runnable {
 
     @Override
     public void run() {
-        tcpClient.run(new SocketCreated() {
+        tcpClient.run(new SocketEvents() {
             @Override
             public void onSocketCreated() {
                 threadHandler = scheduler.scheduleAtFixedRate(sendStatusCommand, 10, 10, SECONDS);
             }
+
+            @Override
+            public void onSocketClose() {
+                threadHandler.cancel(true);
+            }
+
         });
     }
 
